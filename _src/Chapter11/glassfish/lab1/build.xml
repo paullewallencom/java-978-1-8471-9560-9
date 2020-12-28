@@ -1,0 +1,114 @@
+<project name="ejb30notebook" basedir=".">
+
+	<property name="build.dir" value="${basedir}/build" />
+	<property name="src.dir" value="${basedir}/src" />
+      <property name="config.dir" value="${basedir}/config" />
+	<property file="env.properties" />
+
+<path id="j2ee.classpath">
+      <pathelement location="${build.dir}"/>
+      <fileset dir="${glassfish.home}/lib">
+         <include name="*.jar"/>
+      </fileset>
+      <pathelement location="${build.dir}/client/**"/>
+</path>
+
+
+
+
+<target name="clean">
+   <delete dir="${build.dir}"/>
+   <mkdir dir="${build.dir}" />
+   <mkdir dir="${build.dir}/endpoint" />
+   <mkdir dir="${build.dir}/client" />
+   <mkdir dir="${build.dir}/web/WEB-INF/classes"/>
+</target>
+
+<target name="all">
+    <antcall target="clean"/>
+    <antcall target="compile-endpoint"/>
+    <antcall target="run-wsgen"/>
+    <antcall target="package-war"/>
+    <antcall target="deploy"/>
+    <antcall target="run-wsimport"/>
+    <antcall target="compile-client"/>
+    <antcall target="run-client"/>
+</target>
+
+
+
+<target name="compile-endpoint">
+		<javac destdir="${build.dir}"
+		 srcdir="${src.dir}/endpoint"
+		 classpathref="j2ee.classpath"/>		
+</target>
+
+<target name="run-wsgen">
+      <mkdir dir="build/wsgen"/>
+      <exec executable="${glassfish.home}/bin/wsgen.bat" 
+            failonerror="true" >
+         <arg line="-cp build -keep -d build -r build/wsgen -wsdl endpoint.Arithmetic"/>
+      </exec>
+</target>
+
+
+
+<target name="package-war">
+    <copy todir="${build.dir}/web/WEB-INF/classes">
+         <fileset dir="${build.dir}">
+           <include name="**/*.class"/>
+         </fileset>
+    </copy>
+    <jar destfile="${build.dir}/arithmetic-webservice.war"
+		 basedir="${build.dir}/web"/>
+</target>
+
+
+
+
+
+<target name="deploy">        
+    <exec executable="${glassfish.home}/bin/asadmin" 
+          failonerror="true" 
+          vmlauncher="false">
+      <arg line="deploy --user admin --passwordfile adminpassword  ${build.dir}/arithmetic-webservice.war
+"/>
+    </exec>
+  </target>
+
+<target name="run-wsimport">
+   <exec executable="${glassfish.home}/bin/wsimport"
+         failonerror="true"
+         vmlauncher="false">
+     <arg line="-keep -d build/client http://localhost:8080/arithmetic-webservice/ArithmeticService?WSDL"/>
+   </exec>
+</target> 
+ 
+<target name="compile-client">
+		<javac destdir="${build.dir}/client"
+		 srcdir="${src.dir}"
+             classpath="${glassfish.home}/lib/javaee.jar:${glassfish.home}/lib/appserv-ws.jar"
+             includes="client/**"/>           	
+</target>
+
+<target name="run-client">
+  <exec executable="${glassfish.home}/bin/appclient.bat" dir="${build.dir}/client">
+       <arg value="client.WebServiceClient"/>
+  </exec>
+</target>
+
+
+		
+<target name="undeploy">        
+    <exec executable="${glassfish.home}/bin/asadmin" 
+          failonerror="true" 
+          vmlauncher="false">
+      <arg line="undeploy --user admin  --passwordfile adminpassword  arithmetic-webservice"/>
+    </exec>
+ </target>
+
+</project>	
+
+
+
+

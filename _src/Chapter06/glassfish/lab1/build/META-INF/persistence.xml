@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="1.0"> 
+<persistence-unit name="BankService" transaction-type="RESOURCE_LOCAL">
+<class>ejb30.entity.Customer</class> 
+<properties> 
+  <property name="toplink.jdbc.driver" value="org.apache.derby.jdbc.ClientDriver"/> 
+  <property name="toplink.jdbc.url" value="jdbc:derby://localhost:1527/sun-appserv-samples"/> 
+  <property name="toplink.jdbc.user" value="app"/> 
+  <property name="toplink.jdbc.password" value="app"/>
+</properties> 
+</persistence-unit> 
+</persistence>
+
+
+
+
+
+
+
+
+

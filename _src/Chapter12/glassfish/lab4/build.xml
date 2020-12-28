@@ -1,0 +1,97 @@
+<project name="ejb30notebook" basedir=".">
+
+	<property name="build.dir" value="${basedir}/build" />
+	<property name="src.dir" value="${basedir}/src" />
+      <property name="config.dir" value="${basedir}/config" />
+	<property file="env.properties" />
+
+<path id="j2ee.classpath">
+      <pathelement location="${build.dir}"/>
+      <fileset dir="${glassfish.home}/lib">
+         <include name="javaee.jar"/>
+      </fileset>
+</path>
+
+
+<target name="clean">
+   <delete dir="${build.dir}"/>
+   <mkdir dir="${build.dir}" />
+   <mkdir dir="${build.dir}/web/WEB-INF/classes"/>
+   <mkdir dir="${build.dir}/web/WEB-INF/lib"/>
+</target>
+
+<target name="all">
+    <antcall target="clean"/>
+    <antcall target="compile-entities"/>
+    <antcall target="package-entities"/>
+    <antcall target="compile-web"/>
+    <antcall target="package-web"/>
+    <antcall target="deploy"/>
+</target>
+
+
+<target name="compile-entities">
+		<javac destdir="${build.dir}"
+			srcdir="${src.dir}"
+			classpathref="j2ee.classpath"/>		
+</target>
+
+	<target name="package-entities" depends="compile-entities">
+		<jar jarfile="${build.dir}/BankService.jar">
+			<fileset dir="${build.dir}">
+                        <include name="ejb30/entity/**" />
+                  </fileset>
+                  <metainf dir="${config.dir}">
+				<include name="persistence.xml" />
+			</metainf>		
+		</jar>
+	</target>
+
+
+<target name="compile-web" depends="package-entities">
+	 <javac destdir="${build.dir}/web/WEB-INF/classes"
+			srcdir="web/src"
+			classpathref="j2ee.classpath">
+              <classpath>
+                <pathelement location="${build.dir}/BankService.jar"/>
+              </classpath>
+       </javac>		
+</target>
+
+<target name="package-web" depends="compile-web">
+            <copy file="web/web.xml" todir="${build.dir}/web/WEB-INF"/>
+            <copy file="${build.dir}/BankService.jar" todir="${build.dir}/web/WEB-INF/lib"/>
+            <copy todir="${build.dir}/web/">
+               <fileset dir="web">
+                  <include name="**/*.html"/>
+               </fileset>
+            </copy>
+		<jar destfile="${build.dir}/BankService.war"
+		 basedir="${build.dir}/web"/>
+</target>
+
+
+
+	
+<target name="deploy">        
+    <exec executable="${glassfish.home}/bin/asadmin" 
+          failonerror="true" 
+          vmlauncher="false">
+      <arg line="deploy --user admin --passwordfile adminpassword --createtables=true ${build.dir}/BankService.war"/>
+    </exec>
+  </target>
+
+
+<target name="undeploy">        
+    <exec executable="${glassfish.home}/bin/asadmin" 
+          failonerror="true" 
+          vmlauncher="false">
+      <arg line="undeploy --user admin  --passwordfile adminpassword  --droptables=true BankService"/>
+    </exec>
+  </target>
+	
+
+</project>
+
+
+		

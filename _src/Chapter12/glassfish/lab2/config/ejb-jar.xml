@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd">
+<enterprise-beans>
+<session>
+<ejb-name>BankServiceBean</ejb-name>
+</session>
+</enterprise-beans>
+<assembly-descriptor>
+<exclude-list>
+<method>
+   <ejb-name>BankServiceBean</ejb-name>
+   <method-name>updateCustomer</method-name>
+</method>
+</exclude-list>
+</assembly-descriptor>
+</ejb-jar>
+
+
+
+
+

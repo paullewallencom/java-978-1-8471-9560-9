@@ -1,0 +1,3 @@
+Main-Class: ejb30.client.Client
+
+
